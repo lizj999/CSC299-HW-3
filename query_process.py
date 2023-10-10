@@ -15,7 +15,7 @@ def format_out(results: list[str], document_store: ListDocumentStore, unused_pro
     return output_string
 
 
-def query_process(document_store: ListDocumentStore, index: Index, query: str)-> str:
+def query_process(document_store: ListDocumentStore, index: Index, query: str, number_of_results: int)-> str:
     processed_query = preprocess_query(query)
-    results = index.search(processed_query)
+    results = index.search(processed_query, number_of_results)
     return format_out(results, document_store, processed_query)
