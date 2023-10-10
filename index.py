@@ -9,15 +9,22 @@ class Index:
     def add_document(self, doc: TransformedDocument):
         self.id_to_terms_counts[doc.doc_id] = count_terms(doc.terms)  # want to use output of one we made
 
-    def search(self, processed_query: list[str])-> list[str]: # ranking.py had so many relevance ordered docs just do that w processed_query you use dict set up and add docs that add data rep of doc to index class
-        query_terms_set = set(processed_query)
+    def search(self, processed_query: list[str], number_of_results: int) -> list[str]:  # ranking.py had so many relevance ordered docs just do that w processed_query you use dict set up and add docs that add data rep of doc to index class
         results = []
-        for doc_id, doc_term_set in self.id_to_terms_counts.items():
-            if query_terms_set.issubset(doc_term_set):
-                results.append(doc_id)
-        #TODO: Make results into a class.
-        return results # will be docIds -wont procuce actual docs cause index is structure to find right docs not to store right docs (thats for documents store)
-
+        id_to_terms_combined_counts = collections.defaultdict(int)
+        for doc_id in self.id_to_terms_counts.key():
+            score = self.combine_term_scores(processed_query, self.id_to_terms_counts[doc_id])
+            id_to_terms_combined_counts[str(doc_id)] = int(score)
+        combined_sorted = sorted(id_to_terms_combined_counts.items(), key=lambda term: term[1], reverse=True)
+        result_count = 0
+        for item in combined_sorted:
+            if result_count < number_of_results:
+                results.append(item[0])
+                result_count += 1
+            else:
+                break
+        return results
+        
 # 3a. HW 3 - function not method??:
 from collections import defaultdict # hw 3a.
 def count_terms(terms_list: list[str]) -> dict:
